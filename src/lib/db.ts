@@ -35,7 +35,51 @@ function createTables() {
 export function saveDatabase() {
   if (dbState.data === null) return;
   
-  localStorage.setItem('dofus.db', JSON.stringify(dbState.data));
+  try {
+    localStorage.setItem('dofus.db', JSON.stringify(dbState.data));
+  } catch (error: any) {
+    if (error.name === 'QuotaExceededError') {
+      console.error('LocalStorage quota exceeded, trying to clean up...');
+      // Limpiar historial de precios para liberar espacio
+      if (dbState.data.price_history && dbState.data.price_history.length > 0) {
+        // Mantener solo los últimos 20 cambios por runa
+        const cleanedHistory: any[] = [];
+        const historyByRune: Record<number, any[]> = {};
+        
+        dbState.data.price_history.forEach((entry: any) => {
+          if (!historyByRune[entry.runeId]) {
+            historyByRune[entry.runeId] = [];
+          }
+          historyByRune[entry.runeId].push(entry);
+        });
+        
+        Object.keys(historyByRune).forEach(runeId => {
+          const runeHistory = historyByRune[parseInt(runeId)];
+          if (runeHistory.length > 20) {
+            // Mantener los últimos 20
+            cleanedHistory.push(...runeHistory.slice(-20));
+          } else {
+            cleanedHistory.push(...runeHistory);
+          }
+        });
+        
+        dbState.data.price_history = cleanedHistory;
+        
+        try {
+          localStorage.setItem('dofus.db', JSON.stringify(dbState.data));
+          console.log('Successfully cleaned up price history');
+        } catch (retryError) {
+          console.error('Still exceeded quota after cleanup, clearing all history');
+          dbState.data.price_history = [];
+          localStorage.setItem('dofus.db', JSON.stringify(dbState.data));
+        }
+      } else {
+        throw error;
+      }
+    } else {
+      throw error;
+    }
+  }
 }
 
 // Exportar la base de datos como archivo

@@ -214,14 +214,16 @@ export default function PreciosPage() {
                               onChange={(e) => handlePriceChange(rune.id, e.target.value)}
                               onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
+                                  e.preventDefault();
                                   setValidationMessage(null);
                                   handleSavePrice(rune.id, rune.name.es);
                                 } else if (e.key === 'Escape') {
+                                  e.preventDefault();
                                   setValidationMessage(null);
                                   handleCancelEdit(rune.id);
                                 }
                               }}
-                              className="w-40 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#974133] focus:border-transparent"
+                              className="w-40 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#974133] focus:border-transparent text-[#100b2a]"
                               placeholder="Precio"
                               autoFocus
                             />
@@ -235,7 +237,7 @@ export default function PreciosPage() {
                                 setValidationMessage(null);
                                 handleSavePrice(rune.id, rune.name.es);
                               }}
-                              className="text-[#65856d] hover:text-[#65856d]/80 transition-colors"
+                              className="text-[#100b2a] hover:text-[#974133] transition-colors"
                               title="Guardar"
                             >
                               <Save size={20} />

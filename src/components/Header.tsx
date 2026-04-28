@@ -21,6 +21,12 @@ export default function Header() {
             >
               Precios Runas
             </Link>
+            <Link
+              href="/equipo"
+              className="text-[#ecfeca] hover:text-[#adca9a] transition-colors font-medium"
+            >
+              Equipo
+            </Link>
           </div>
         </nav>
       </div>

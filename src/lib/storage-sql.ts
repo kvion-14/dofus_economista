@@ -1,6 +1,8 @@
 import { RunePrice, PriceHistory, PriceChange, BrokenItem, RuneObtained } from '@/types/dofus';
 import dbState, { saveDatabase, initializeDatabase } from './db';
 
+export { saveDatabase, initializeDatabase };
+
 // Precios de runas
 export async function getRunePrices(): Promise<Record<number, RunePrice>> {
   const db = await initializeDatabase();
@@ -187,5 +189,142 @@ export async function clearPriceHistory(): Promise<void> {
   const db = await initializeDatabase();
   
   db.price_history = [];
+  saveDatabase();
+}
+
+// Funciones para equipo
+export async function getEquipment(): Promise<any[]> {
+  const db = await initializeDatabase();
+  
+  return db.equipment || [];
+}
+
+export async function setEquipment(equipment: any[]): Promise<void> {
+  const db = await initializeDatabase();
+  
+  db.equipment = equipment;
+  saveDatabase();
+}
+
+export async function getEquipmentItems(): Promise<Record<number, any>> {
+  const db = await initializeDatabase();
+  
+  return db.equipment_items || {};
+}
+
+export async function setEquipmentItem(itemId: number, itemData: any): Promise<void> {
+  const db = await initializeDatabase();
+  
+  if (!db.equipment_items) db.equipment_items = {};
+  
+  db.equipment_items[itemId] = itemData;
+  saveDatabase();
+}
+
+export async function removeEquipmentItem(itemId: number): Promise<void> {
+  const db = await initializeDatabase();
+  
+  if (db.equipment_items) {
+    delete db.equipment_items[itemId];
+    saveDatabase();
+  }
+}
+
+// Funciones para caché de items de equipo
+export async function getCachedItems(typeId: number): Promise<any[] | null> {
+  const db = await initializeDatabase();
+  
+  if (!db.items_cache) db.items_cache = {};
+  
+  const cacheKey = `type_${typeId}`;
+  const cached = db.items_cache[cacheKey];
+  
+  if (cached) {
+    // Verificar si el caché tiene más de 24 horas
+    const cacheTime = new Date(cached.timestamp).getTime();
+    const now = new Date().getTime();
+    const hoursDiff = (now - cacheTime) / (1000 * 60 * 60);
+    
+    if (hoursDiff < 24) {
+      return cached.items;
+    }
+  }
+  
+  return null;
+}
+
+export async function setCachedItems(typeId: number, items: any[]): Promise<void> {
+  const db = await initializeDatabase();
+  
+  if (!db.items_cache) db.items_cache = {};
+  
+  const cacheKey = `type_${typeId}`;
+  db.items_cache[cacheKey] = {
+    items,
+    timestamp: new Date().toISOString()
+  };
+  
+  saveDatabase();
+}
+
+// Funciones para caché de imágenes de items
+export async function getCachedItemImages(): Promise<Record<number, string> | null> {
+  const db = await initializeDatabase();
+  
+  if (!db.item_images_cache) return null;
+  
+  const cached = db.item_images_cache;
+  
+  // Verificar si el caché tiene más de 24 horas
+  const cacheTime = new Date(cached.timestamp).getTime();
+  const now = new Date().getTime();
+  const hoursDiff = (now - cacheTime) / (1000 * 60 * 60);
+  
+  if (hoursDiff < 24) {
+    return cached.images;
+  }
+  
+  return null;
+}
+
+export async function setCachedItemImages(images: Record<number, string>): Promise<void> {
+  const db = await initializeDatabase();
+  
+  db.item_images_cache = {
+    images,
+    timestamp: new Date().toISOString()
+  };
+  
+  saveDatabase();
+}
+
+// Funciones para caché de características
+export async function getCachedCharacteristics(): Promise<any[] | null> {
+  const db = await initializeDatabase();
+  
+  if (!db.characteristics_cache) return null;
+  
+  const cached = db.characteristics_cache;
+  
+  // Verificar si el caché tiene más de 24 horas
+  const cacheTime = new Date(cached.timestamp).getTime();
+  const now = new Date().getTime();
+  const hoursDiff = (now - cacheTime) / (1000 * 60 * 60);
+  
+  if (hoursDiff < 24) {
+    return cached.characteristics;
+  }
+  
+  return null;
+}
+
+export async function setCachedCharacteristics(characteristics: any[]): Promise<void> {
+  const db = await initializeDatabase();
+  
+  db.characteristics_cache = {
+    characteristics,
+    timestamp: new Date().toISOString()
+  };
+  
   saveDatabase();
 }
