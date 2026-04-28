@@ -123,15 +123,18 @@ export default function Home() {
   const calculateProfit = (item: BrokenItem) => {
     const runesTotal = calculateRunesTotal(item.runesObtained);
     
+    // Aplicar impuesto de puesta en venta del 2%
+    const runesTotalAfterTax = runesTotal * 0.98;
+    
     let buyProfit: number | string = "Falta info";
     let craftProfit: number | string = "Falta info";
 
     if (item.itemPrice !== undefined) {
-      buyProfit = runesTotal - item.itemPrice;
+      buyProfit = runesTotalAfterTax - item.itemPrice;
     }
 
     if (item.craftPrice !== undefined) {
-      craftProfit = runesTotal - item.craftPrice;
+      craftProfit = runesTotalAfterTax - item.craftPrice;
     }
 
     return { buyProfit, craftProfit };
