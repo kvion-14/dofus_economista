@@ -130,8 +130,8 @@ export default function PreciosPage() {
     <div className="min-h-screen bg-[#2a213a] pt-12">
       <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="mb-12">
-          <h1 className="text-4xl font-bold text-[#100b2a] mb-2">Precios Runas</h1>
-          <p className="text-gray-600 mb-6">Gestiona los precios de las runas para calcular el valor de tus items</p>
+          <h1 className="text-4xl font-bold text-[#ecfeca] mb-2">Precios Runas</h1>
+          <p className="text-[#adca9a] mb-6">Gestiona los precios de las runas para calcular el valor de tus items</p>
           <div className="flex flex-col sm:flex-row gap-4">
             <input
               type="text"

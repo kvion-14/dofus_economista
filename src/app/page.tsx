@@ -121,8 +121,8 @@ export default function Home() {
       <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="flex justify-between items-center mb-12">
           <div>
-            <h1 className="text-4xl font-bold text-[#100b2a] mb-2">Items Rotos</h1>
-            <p className="text-gray-600">Registra y calcula el valor de tus items rotos por forjamagia</p>
+            <h1 className="text-4xl font-bold text-[#ecfeca] mb-2">Items Rotos</h1>
+            <p className="text-[#adca9a]">Registra y calcula el valor de tus items rotos por forjamagia</p>
           </div>
           <button
             onClick={() => setShowAddForm(!showAddForm)}

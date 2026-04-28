@@ -62,8 +62,8 @@ export default function HistoricosPage() {
             <ArrowLeft size={20} />
             Volver a Precios Runas
           </Link>
-          <h1 className="text-4xl font-bold text-[#100b2a] mb-2">Históricos de Precios</h1>
-          <p className="text-gray-600 mb-6">Visualiza el historial de cambios de precios de todas las runas</p>
+          <h1 className="text-4xl font-bold text-[#ecfeca] mb-2">Históricos de Precios</h1>
+          <p className="text-[#adca9a] mb-6">Visualiza el historial de cambios de precios de todas las runas</p>
           <div className="flex flex-col sm:flex-row gap-4">
             <input
               type="text"
