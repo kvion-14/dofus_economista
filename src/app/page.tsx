@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { BrokenItem, RuneObtained, DofusItem } from "@/types/dofus";
-import { getRunePrices, getBrokenItems, addBrokenItem, deleteBrokenItem, getCachedItems, setCachedItems, getBrokenItemsHistory, getFavorites } from "@/lib/storage-sql";
+import { getRunePrices, getBrokenItems, addBrokenItem, deleteBrokenItem, getCachedItems, setCachedItems, getBrokenItemsHistory, getFavorites, setRunePrice } from "@/lib/storage-sql";
 import { fetchAllRunes, fetchItemTypes, fetchAllItemsByType } from "@/lib/dofus-api";
-import { Trash2, Plus, Edit, X } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -41,6 +41,9 @@ export default function Home() {
     craftPrice: "",
   });
   const [possibleRunes, setPossibleRunes] = useState<RuneObtained[]>([]);
+  const [showPriceModal, setShowPriceModal] = useState(false);
+  const [editingRunePrices, setEditingRunePrices] = useState<Record<number, string>>({});
+  const [selectedItemRunes, setSelectedItemRunes] = useState<RuneObtained[]>([]);
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -262,8 +265,39 @@ export default function Home() {
   };
 
   const handleOpenPricePage = (runesObtained: RuneObtained[]) => {
-    const runeIds = runesObtained.map(r => r.runeId).join(',');
-    router.push(`/precios?filterRunes=${runeIds}`);
+    setSelectedItemRunes(runesObtained);
+    // Inicializar precios de edición con los precios actuales
+    const initialPrices: Record<number, string> = {};
+    runesObtained.forEach(r => {
+      const price = runePrices[r.runeId]?.price;
+      initialPrices[r.runeId] = price !== undefined ? price.toString() : '';
+    });
+    setEditingRunePrices(initialPrices);
+    setShowPriceModal(true);
+  };
+
+  const handleSaveRunePrice = async (runeId: number, runeName: string) => {
+    const value = editingRunePrices[runeId];
+    if (value !== undefined && value !== '') {
+      const price = parseFloat(value);
+      await setRunePrice(runeId, runeName, price);
+      // Actualizar precios locales
+      setRunePrices({ ...runePrices, [runeId]: { runeId, runeName, price, updatedAt: new Date().toISOString() } });
+    }
+  };
+
+  const handleSaveAllRunePrices = async () => {
+    for (const rune of selectedItemRunes) {
+      const value = editingRunePrices[rune.runeId];
+      if (value !== undefined && value !== '') {
+        const price = parseFloat(value);
+        await setRunePrice(rune.runeId, rune.runeName, price);
+      }
+    }
+    // Recargar precios
+    const prices = await getRunePrices();
+    setRunePrices(prices);
+    setShowPriceModal(false);
   };
 
   const handleSort = (field: 'createdAt' | 'buyProfit' | 'craftProfit') => {
@@ -548,14 +582,14 @@ export default function Home() {
                           className="text-[#974133] hover:text-[#974133]/80 transition-colors"
                           title="Completar precios runas"
                         >
-                          <Edit size={20} />
+                          <img src="/assets/kama.png" alt="Editar precios" className="w-5 h-5" />
                         </button>
                         <button
                           onClick={() => handleDeleteItem(item.id)}
                           className="text-[#974133] hover:text-[#974133]/80 transition-colors"
                           title="Eliminar"
                         >
-                          <Trash2 size={20} />
+                          <img src="/assets/dragopedo.jpg" alt="Eliminar" className="w-5 h-5" />
                         </button>
                       </div>
                     </td>
@@ -640,6 +674,67 @@ export default function Home() {
                     <p>No se encontraron items</p>
                   </div>
                 )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {showPriceModal && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+            <div className="bg-[#2a213a] rounded-xl shadow-lg max-w-2xl w-full mx-4 max-h-[90vh] overflow-hidden flex flex-col">
+              <div className="p-6 border-b border-gray-700 flex justify-between items-center">
+                <h2 className="text-2xl font-semibold text-[#ecfeca]">Editar Precios de Runas</h2>
+                <button
+                  onClick={() => setShowPriceModal(false)}
+                  className="text-gray-400 hover:text-white"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-6">
+                <div className="space-y-4">
+                  {selectedItemRunes.map((rune) => {
+                    const runeData = runes.find(r => r.id === rune.runeId);
+                    return (
+                      <div key={rune.runeId} className="flex items-center gap-4 bg-gray-800 rounded-lg p-4">
+                        {runeData && (
+                          <img src={runeData.img} alt={rune.runeName} className="w-12 h-12" />
+                        )}
+                        <div className="flex-1">
+                          <div className="text-sm font-medium text-[#ecfeca]">{rune.runeName}</div>
+                          <div className="text-xs text-gray-400">Cantidad: {rune.quantity}</div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="number"
+                            value={editingRunePrices[rune.runeId] || ''}
+                            onChange={(e) => setEditingRunePrices({ ...editingRunePrices, [rune.runeId]: e.target.value })}
+                            className="w-32 bg-white text-black border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#974133] focus:border-transparent"
+                            placeholder="Precio"
+                            min="0"
+                          />
+                          <span className="text-sm text-gray-400">kamas</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="p-6 border-t border-gray-700 flex justify-end gap-4">
+                <button
+                  onClick={() => setShowPriceModal(false)}
+                  className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleSaveAllRunePrices}
+                  className="px-6 py-2 bg-[#974133] text-white rounded-lg hover:bg-[#974133]/90 transition-colors"
+                >
+                  Guardar Todos
+                </button>
               </div>
             </div>
           </div>
