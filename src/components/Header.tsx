@@ -6,7 +6,7 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-8 py-4">
         <nav className="flex items-center justify-between">
           <Link href="/" className="text-2xl font-bold text-[#ecfeca]">
-            Dofus Forjamagia
+            Dofus Economista
           </Link>
           <div className="flex items-center space-x-8">
             <Link

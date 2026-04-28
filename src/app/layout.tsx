@@ -3,7 +3,7 @@ import "./globals.css";
 import Header from "@/components/Header";
 
 export const metadata: Metadata = {
-  title: "Dofus Forjamagia",
+  title: "Dofus Economista",
   description: "Gestiona tus forjamagias de Dofus",
 };
 
