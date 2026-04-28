@@ -429,5 +429,34 @@ def set_item_images_cache():
     conn.close()
     return jsonify({'success': True})
 
+# API para favoritos
+@app.route('/api/favorites', methods=['GET'])
+def get_favorites():
+    conn = get_db_connection()
+    favorites = conn.execute('SELECT * FROM favorites').fetchall()
+    conn.close()
+    result = {}
+    for row in favorites:
+        result[row['itemId']] = True
+    return jsonify(result)
+
+@app.route('/api/favorites/<int:item_id>', methods=['POST'])
+def toggle_favorite(item_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # Verificar si ya existe
+    cursor.execute('SELECT * FROM favorites WHERE itemId = ?', (item_id,))
+    existing = cursor.fetchone()
+    
+    if existing:
+        cursor.execute('DELETE FROM favorites WHERE itemId = ?', (item_id,))
+    else:
+        cursor.execute('INSERT INTO favorites (itemId) VALUES (?)', (item_id,))
+    
+    conn.commit()
+    conn.close()
+    return jsonify({'success': True})
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
