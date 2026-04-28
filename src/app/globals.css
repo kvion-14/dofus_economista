@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+:root {
+  --background: #2a213a;
+  --foreground: #ecfeca;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  
+  /* Paleta de colores personalizada */
+  --color-dofus-dark: #100b2a;
+  --color-dofus-purple-dark: #2a213a;
+  --color-dofus-green-dark: #314743;
+  --color-dofus-green-mid: #65856d;
+  --color-dofus-green-light: #adca9a;
+  --color-dofus-cream: #ecfeca;
+  --color-dofus-brown-dark: #582d27;
+  --color-dofus-red: #974133;
+  --color-dofus-orange: #d67654;
+  --color-dofus-purple-brown: #5d3441;
+  --color-dofus-pink: #a3685b;
+  --color-dofus-orange-light: #ffb379;
+  --color-dofus-yellow: #ffe6a9;
+  --color-dofus-white: #ffffff;
+}
+
+:root {
+  --background: #2a213a;
+  --foreground: #ecfeca;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
