@@ -6,12 +6,12 @@ const CHARACTERISTIC_ICONS: Record<number, string> = {
   3: 'pp.png',                    // Puntos de característica (Prospección)
   4: 'soin.png',                  // Puntos de hechizo
   5: 'puissance.png',             // Nivel
-  10: 'puissance.png',            // Fuerza
+  10: 'terre.png',                // Fuerza
   11: 'pv.png',                   // Vitalidad
   12: 'sagesse.png',              // Sabiduría
-  13: 'pp.png',                   // Suerte
-  15: 'sagesse.png',              // Inteligencia
-  16: 'fuite.png',                // Agilidad
+  13: 'eau.png',                  // Suerte
+  15: 'feu.png',                  // Inteligencia
+  16: 'air.png',                  // Agilidad
   17: 'feu.png',                  // Fuego
   18: 'eau.png',                  // Agua
   19: 'air.png',                  // Aire
@@ -39,11 +39,11 @@ const CHARACTERISTIC_ICONS: Record<number, string> = {
   41: 'tacle.png',                // Bloqueo
   42: 'fuite.png',                // Esquiva
   43: 'sagesse.png',              // Sabiduría %
-  44: 'puissance.png',            // Fuerza %
+  44: 'terre.png',                // Fuerza %
   45: 'pv.png',                   // Vitalidad %
-  46: 'pp.png',                   // Suerte %
-  47: 'sagesse.png',              // Inteligencia %
-  48: 'fuite.png',                // Agilidad %
+  46: 'eau.png',                  // Suerte %
+  47: 'feu.png',                  // Inteligencia %
+  48: 'air.png',                  // Agilidad %
   49: 'feu.png',                  // Daño Fuego
   50: 'eau.png',                  // Daño Agua
   51: 'air.png',                  // Daño Aire

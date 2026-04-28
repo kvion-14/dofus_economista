@@ -22,7 +22,7 @@ const CATEGORY_SUPER_TYPES: Record<string, number> = {
 const CATEGORIES = Object.keys(CATEGORY_SUPER_TYPES);
 
 export default function EquipoPage() {
-  const [selectedCategory, setSelectedCategory] = useState<string>("Sombrero");
+  const [selectedCategory, setSelectedCategory] = useState<string>("Favoritos");
   const [items, setItems] = useState<any[]>([]);
   const [favorites, setFavorites] = useState<Record<number, boolean>>({});
   const [equipmentItems, setEquipmentItems] = useState<Record<number, any>>({});
@@ -189,13 +189,15 @@ export default function EquipoPage() {
         {effects.map((effect, index) => {
           const iconFile = CHARACTERISTIC_ICONS[effect.characteristic];
           const iconUrl = iconFile ? `/assets/caracteristicas/${iconFile}` : null;
+          const characteristic = characteristics.find(c => c.id === effect.characteristic);
+          const charName = characteristic?.name?.es || `Característica ${effect.characteristic}`;
           
           return (
             <div key={index} className="text-xs text-gray-600 flex items-center gap-1">
               {iconUrl ? (
-                <img src={iconUrl} alt="" className="w-4 h-4" />
+                <img src={iconUrl} alt={charName} title={charName} className="w-4 h-4" />
               ) : (
-                <span>📊</span>
+                <span title={charName}>📊</span>
               )}
               <span>{effect.from} a {effect.to}</span>
             </div>
@@ -270,7 +272,7 @@ export default function EquipoPage() {
               />
               
               <div className="flex items-center gap-2">
-                <label className="text-sm text-gray-600">Nivel:</label>
+                <label className="text-sm text-[#65856d]">Nivel:</label>
                 <input
                   type="number"
                   value={levelFrom}
@@ -305,16 +307,14 @@ export default function EquipoPage() {
               </button>
 
               <select
-                value=""
                 onChange={(e) => {
                   const charId = parseInt(e.target.value);
                   if (charId && !selectedCharacteristics.includes(charId)) {
                     handleToggleCharacteristic(charId);
                   }
                 }}
-                className="border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#974133] focus:border-transparent"
+                className="w-full p-2 border border-gray-300 rounded bg-white text-[#100b2a]"
               >
-                <option value="">Añadir característica...</option>
                 {characteristics.filter(c => c.visible).map((char) => (
                   <option key={char.id} value={char.id} className="text-[#100b2a]">
                     {char.name.es}
