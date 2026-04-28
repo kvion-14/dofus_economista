@@ -1,15 +1,14 @@
 import { RunePrice, PriceHistory, PriceChange, BrokenItem, RuneObtained } from '@/types/dofus';
-import dbState, { saveDatabase, initializeDatabase } from './db';
 
-export { saveDatabase, initializeDatabase };
+const API_BASE = 'http://localhost:5000/api';
 
 // Precios de runas
 export async function getRunePrices(): Promise<Record<number, RunePrice>> {
-  const db = await initializeDatabase();
+  const response = await fetch(`${API_BASE}/rune-prices`);
+  const data = await response.json();
   
-  const runePrices = db.rune_prices || [];
   const prices: Record<number, RunePrice> = {};
-  for (const row of runePrices) {
+  for (const row of data) {
     prices[row.runeId] = {
       runeId: row.runeId,
       runeName: row.runeName,
@@ -21,51 +20,24 @@ export async function getRunePrices(): Promise<Record<number, RunePrice>> {
 }
 
 export async function setRunePrice(runeId: number, runeName: string, price: number): Promise<void> {
-  const db = await initializeDatabase();
-  
-  if (!db.rune_prices) db.rune_prices = [];
-  
-  const oldPrice = db.rune_prices.find((p: any) => p.runeId === runeId);
-  const now = new Date().toISOString();
-  
-  // Si es la primera vez que se establece un precio para esta runa, guardar 0 kamas primero
-  if (oldPrice === undefined) {
-    db.price_history = db.price_history || [];
-    db.price_history.push({ runeId, runeName, price: 0, timestamp: now });
-  }
-  
-  // Actualizar o insertar
-  const existingIndex = db.rune_prices.findIndex((p: any) => p.runeId === runeId);
-  if (existingIndex >= 0) {
-    db.rune_prices[existingIndex] = { runeId, runeName, price, updatedAt: now };
-  } else {
-    db.rune_prices.push({ runeId, runeName, price, updatedAt: now });
-  }
-  
-  // Guardar en historial si el precio cambió
-  if (oldPrice !== undefined && oldPrice.price !== price) {
-    await addPriceToHistory(runeId, runeName, price);
-  }
-  
-  saveDatabase();
+  await fetch(`${API_BASE}/rune-prices`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ runeId, runeName, price }),
+  });
 }
 
 export async function deleteRunePrice(runeId: number): Promise<void> {
-  const db = await initializeDatabase();
-  
-  if (db.rune_prices) {
-    db.rune_prices = db.rune_prices.filter((p: any) => p.runeId !== runeId);
-  }
-  saveDatabase();
+  await fetch(`${API_BASE}/rune-prices/${runeId}`, { method: 'DELETE' });
 }
 
 // Historial de precios
 export async function getPriceHistory(): Promise<Record<number, PriceHistory>> {
-  const db = await initializeDatabase();
+  const response = await fetch(`${API_BASE}/price-history`);
+  const data = await response.json();
   
-  const priceHistory = db.price_history || [];
   const history: Record<number, PriceHistory> = {};
-  for (const row of priceHistory) {
+  for (const row of data) {
     if (!history[row.runeId]) {
       history[row.runeId] = {
         runeId: row.runeId,
@@ -81,32 +53,16 @@ export async function getPriceHistory(): Promise<Record<number, PriceHistory>> {
   return history;
 }
 
-async function addPriceToHistory(runeId: number, runeName: string, price: number): Promise<void> {
-  const db = await initializeDatabase();
-  
-  if (!db.price_history) db.price_history = [];
-  
-  const now = new Date().toISOString();
-  db.price_history.push({ runeId, runeName, price, timestamp: now });
-  
-  // Mantener solo los últimos 50 cambios por runa
-  const runeHistory = db.price_history.filter((h: any) => h.runeId === runeId);
-  if (runeHistory.length > 50) {
-    db.price_history = db.price_history.filter((h: any) => {
-      if (h.runeId !== runeId) return true;
-      return h.timestamp !== runeHistory[0].timestamp;
-    });
-  }
-  
-  saveDatabase();
+export async function clearPriceHistory(): Promise<void> {
+  await fetch(`${API_BASE}/price-history`, { method: 'DELETE' });
 }
 
 // Items rotos
 export async function getBrokenItems(): Promise<BrokenItem[]> {
-  const db = await initializeDatabase();
+  const response = await fetch(`${API_BASE}/broken-items`);
+  const data = await response.json();
   
-  const brokenItems = db.broken_items || [];
-  return brokenItems.map((row: any) => ({
+  return data.map((row: any) => ({
     id: row.id,
     itemName: row.itemName,
     breakPercentage: row.breakPercentage,
@@ -118,213 +74,127 @@ export async function getBrokenItems(): Promise<BrokenItem[]> {
 }
 
 export async function addBrokenItem(item: BrokenItem): Promise<void> {
-  const db = await initializeDatabase();
-  
-  if (!db.broken_items) db.broken_items = [];
-  
-  db.broken_items.push({
-    id: item.id,
-    itemName: item.itemName,
-    breakPercentage: item.breakPercentage,
-    itemPrice: item.itemPrice,
-    craftPrice: item.craftPrice,
-    runesObtained: JSON.stringify(item.runesObtained),
-    createdAt: item.createdAt || new Date().toISOString(),
+  await fetch(`${API_BASE}/broken-items`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(item),
   });
-  
-  saveDatabase();
 }
 
 export async function deleteBrokenItem(itemId: string): Promise<void> {
-  const db = await initializeDatabase();
-  
-  if (db.broken_items) {
-    db.broken_items = db.broken_items.filter((item: any) => item.id !== itemId);
-  }
-  saveDatabase();
+  await fetch(`${API_BASE}/broken-items/${itemId}`, { method: 'DELETE' });
 }
 
 // Datos de runas desde la API
 export async function getRunesData(): Promise<any[]> {
-  const db = await initializeDatabase();
-  
-  console.log('getRunesData - db:', db);
-  console.log('getRunesData - db.runes:', db.runes);
-  
-  return db.runes || [];
+  const response = await fetch(`${API_BASE}/runes`);
+  const data = await response.json();
+  return data;
 }
 
 export async function setRunesData(runes: any[]): Promise<void> {
-  const db = await initializeDatabase();
-  
-  console.log('setRunesData - Guardando', runes.length, 'runas');
-  db.runes = runes;
-  saveDatabase();
-  console.log('setRunesData - Guardado completado');
+  await fetch(`${API_BASE}/runes`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(runes),
+  });
 }
 
 export async function clearAllData(): Promise<void> {
-  const db = await initializeDatabase();
-  
-  db.rune_prices = [];
-  db.price_history = [];
-  db.broken_items = [];
-  db.runes = [];
-  saveDatabase();
+  await fetch(`${API_BASE}/clear-all`, { method: 'POST' });
 }
 
 export async function resetAllPricesToZero(): Promise<void> {
-  const db = await initializeDatabase();
-  
-  if (db.rune_prices) {
-    db.rune_prices.forEach((price: any) => {
-      price.price = 0;
-      price.updatedAt = new Date().toISOString();
-    });
-  }
-  saveDatabase();
-}
-
-export async function clearPriceHistory(): Promise<void> {
-  const db = await initializeDatabase();
-  
-  db.price_history = [];
-  saveDatabase();
+  await fetch(`${API_BASE}/reset-prices`, { method: 'POST' });
 }
 
 // Funciones para equipo
 export async function getEquipment(): Promise<any[]> {
-  const db = await initializeDatabase();
-  
-  return db.equipment || [];
+  const response = await fetch(`${API_BASE}/equipment`);
+  return await response.json();
 }
 
 export async function setEquipment(equipment: any[]): Promise<void> {
-  const db = await initializeDatabase();
-  
-  db.equipment = equipment;
-  saveDatabase();
+  await fetch(`${API_BASE}/equipment`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(equipment),
+  });
 }
 
 export async function getEquipmentItems(): Promise<Record<number, any>> {
-  const db = await initializeDatabase();
-  
-  return db.equipment_items || {};
+  const response = await fetch(`${API_BASE}/equipment-items`);
+  return await response.json();
 }
 
 export async function setEquipmentItem(itemId: number, itemData: any): Promise<void> {
-  const db = await initializeDatabase();
-  
-  if (!db.equipment_items) db.equipment_items = {};
-  
-  db.equipment_items[itemId] = itemData;
-  saveDatabase();
+  await fetch(`${API_BASE}/equipment-items`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ itemId, ...itemData }),
+  });
 }
 
 export async function removeEquipmentItem(itemId: number): Promise<void> {
-  const db = await initializeDatabase();
-  
-  if (db.equipment_items) {
-    delete db.equipment_items[itemId];
-    saveDatabase();
-  }
+  await fetch(`${API_BASE}/equipment-items/${itemId}`, { method: 'DELETE' });
 }
 
 // Funciones para caché de items de equipo
 export async function getCachedItems(typeId: number): Promise<any[] | null> {
-  const db = await initializeDatabase();
-  
-  if (!db.items_cache) db.items_cache = {};
-  
-  const cacheKey = `type_${typeId}`;
-  const cached = db.items_cache[cacheKey];
-  
-  if (cached) {
-    // Verificar si el caché tiene más de 24 horas
-    const cacheTime = new Date(cached.timestamp).getTime();
-    const now = new Date().getTime();
-    const hoursDiff = (now - cacheTime) / (1000 * 60 * 60);
-    
-    if (hoursDiff < 24) {
-      return cached.items;
-    }
-  }
-  
-  return null;
+  const response = await fetch(`${API_BASE}/items-cache/${typeId}`);
+  const data = await response.json();
+  return data;
 }
 
 export async function setCachedItems(typeId: number, items: any[]): Promise<void> {
-  const db = await initializeDatabase();
-  
-  if (!db.items_cache) db.items_cache = {};
-  
-  const cacheKey = `type_${typeId}`;
-  db.items_cache[cacheKey] = {
-    items,
-    timestamp: new Date().toISOString()
-  };
-  
-  saveDatabase();
+  await fetch(`${API_BASE}/items-cache`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ typeId, items }),
+  });
 }
 
 // Funciones para caché de imágenes de items
 export async function getCachedItemImages(): Promise<Record<number, string> | null> {
-  const db = await initializeDatabase();
-  
-  if (!db.item_images_cache) return null;
-  
-  const cached = db.item_images_cache;
-  
-  // Verificar si el caché tiene más de 24 horas
-  const cacheTime = new Date(cached.timestamp).getTime();
-  const now = new Date().getTime();
-  const hoursDiff = (now - cacheTime) / (1000 * 60 * 60);
-  
-  if (hoursDiff < 24) {
-    return cached.images;
-  }
-  
-  return null;
+  const response = await fetch(`${API_BASE}/item-images-cache`);
+  const data = await response.json();
+  return data;
 }
 
 export async function setCachedItemImages(images: Record<number, string>): Promise<void> {
-  const db = await initializeDatabase();
-  
-  db.item_images_cache = {
-    images,
-    timestamp: new Date().toISOString()
-  };
-  
-  saveDatabase();
+  await fetch(`${API_BASE}/item-images-cache`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(images),
+  });
 }
 
 // Funciones para caché de características
 export async function getCachedCharacteristics(): Promise<any[] | null> {
-  const db = await initializeDatabase();
-  
-  if (!db.characteristics_cache) return null;
-  
-  const cached = db.characteristics_cache;
-  
-  // Verificar si el caché tiene más de 24 horas
-  const cacheTime = new Date(cached.timestamp).getTime();
-  const now = new Date().getTime();
-  const hoursDiff = (now - cacheTime) / (1000 * 60 * 60);
-  
-  if (hoursDiff < 24) {
-    return cached.characteristics;
-  }
-  
-  return null;
+  const response = await fetch(`${API_BASE}/characteristics-cache`);
+  const data = await response.json();
+  return data;
 }
 
 export async function setCachedCharacteristics(characteristics: any[]): Promise<void> {
-  const db = await initializeDatabase();
-  
-  db.characteristics_cache = {
-    characteristics,
-    timestamp: new Date().toISOString()
-  };
-  
-  saveDatabase();
+  await fetch(`${API_BASE}/characteristics-cache`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(characteristics),
+  });
 }
+
+// Funciones para favoritos
+export async function getFavorites(): Promise<Record<number, boolean>> {
+  const response = await fetch(`${API_BASE}/favorites`);
+  return await response.json();
+}
+
+export async function toggleFavorite(itemId: number): Promise<void> {
+  await fetch(`${API_BASE}/favorites/${itemId}`, { method: 'POST' });
+}
+
+// Exportar funciones dummy para compatibilidad
+export const saveDatabase = () => {};
+export const initializeDatabase = () => Promise.resolve({});
+

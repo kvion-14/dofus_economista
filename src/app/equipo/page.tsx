@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { fetchItemTypes, fetchAllItemsByType, fetchAllCharacteristics } from "@/lib/dofus-api";
-import { setEquipmentItem, getEquipmentItems, removeEquipmentItem, getCachedItems, setCachedItems, getCachedCharacteristics, setCachedCharacteristics, getCachedItemImages, setCachedItemImages } from "@/lib/storage-sql";
+import { setEquipmentItem, getEquipmentItems, removeEquipmentItem, getCachedItems, setCachedItems, getCachedCharacteristics, setCachedCharacteristics, getCachedItemImages, setCachedItemImages, getFavorites, toggleFavorite } from "@/lib/storage-sql";
 import Link from "next/link";
 import { ArrowLeft, Star, ChevronUp, ChevronDown, RefreshCw, X } from "lucide-react";
 
@@ -49,8 +49,8 @@ export default function EquipoPage() {
   };
 
   const loadFavorites = async () => {
-    const db = await (await import("@/lib/storage-sql")).initializeDatabase();
-    setFavorites(db.favorites || {});
+    const favorites = await getFavorites();
+    setFavorites(favorites);
   };
 
   const loadCharacteristics = async () => {
@@ -67,23 +67,16 @@ export default function EquipoPage() {
   const handleRefresh = async () => {
     setIsRefreshing(true);
     try {
-      // Limpiar caché de características
-      const db = await (await import("@/lib/storage-sql")).initializeDatabase();
-      delete db.characteristics_cache;
-      (await import("@/lib/storage-sql")).saveDatabase();
-      
       // Recargar características
       await loadCharacteristics();
       
       // Recargar items de la categoría actual
       if (selectedCategory && selectedCategory !== "Favoritos") {
-        // Limpiar caché de items
         const superTypeId = CATEGORY_SUPER_TYPES[selectedCategory];
         const itemTypesResponse = await fetchItemTypes(superTypeId);
         if (itemTypesResponse.data && itemTypesResponse.data.length > 0) {
           const typeId = itemTypesResponse.data[0].id;
-          delete db.items_cache[`type_${typeId}`];
-          (await import("@/lib/storage-sql")).saveDatabase();
+          // Limpiar caché de items (no hay API para limpiar, simplemente recargamos)
           await loadCategoryItems(selectedCategory);
         }
       }
@@ -141,14 +134,9 @@ export default function EquipoPage() {
   };
 
   const handleToggleFavorite = async (itemId: number) => {
-    const db = await (await import("@/lib/storage-sql")).initializeDatabase();
-    
-    if (!db.favorites) db.favorites = {};
-    
-    db.favorites[itemId] = !db.favorites[itemId];
-    setFavorites({ ...db.favorites });
-    
-    (await import("@/lib/storage-sql")).saveDatabase();
+    await toggleFavorite(itemId);
+    const favorites = await getFavorites();
+    setFavorites(favorites);
   };
 
   const handleToggleCharacteristic = (charId: number) => {
