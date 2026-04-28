@@ -1,0 +1,74 @@
+Lista de características para equipos de Dofus
+Necesitas iconos para estas características (usa el nombre del archivo: {id}_{keyword}.png):
+
+ID  | Keyword         | Nombre Español
+----|-----------------|------------------
+0   | hitPoints       | Puntos de vida
+1   | actionPoints    | PA
+2   | movementPoints  | PM
+10  | strength        | Fuerza
+11  | vitality        | Vitalidad
+12  | wisdom          | Sabiduría
+13  | chance          | Suerte
+15  | intelligence    | Inteligencia
+16  | agility         | Agilidad
+17  | fireResistance  | Resistencia Fuego
+18  | waterResistance | Resistencia Agua
+19  | airResistance   | Resistencia Aire
+20  | earthResistance | Resistencia Tierra
+21  | neutralResistance| Resistencia Neutral
+22  | resistance      | Resistencia
+23  | damage          | Daño
+24  | critical        | Crítico
+25  | prospecting     | Prospección
+26  | initiative      | Iniciativa
+27  | range           | Alcance
+28  | duration        | Duración
+29  | kamas           | Kamas
+30  | pods            | Pods
+31  | summon          | Invocación
+32  | trap            | Trampa
+33  | glyph           | Glifo
+34  | pushbackDamage  | Daño de rechazo
+35  | heal            | Cura
+36  | stealLife       | Robo de vida
+37  | stealAP         | Robo de PA
+38  | stealMP         | Robo de PM
+39  | dodgeAP         | Esquiva PA
+40  | dodgeMP         | Esquiva PM
+41  | lock            | Bloqueo
+42  | dodge           | Esquiva
+43  | wisdomPercent   | Sabiduría %
+44  | strengthPercent | Fuerza %
+45  | vitalityPercent | Vitalidad %
+46  | chancePercent   | Suerte %
+47  | intelligencePercent | Inteligencia %
+48  | agilityPercent  | Agilidad %
+49  | fireDamage      | Daño Fuego
+50  | waterDamage     | Daño Agua
+51  | airDamage       | Daño Aire
+52  | earthDamage     | Daño Tierra
+53  | neutralDamage   | Daño Neutral
+54  | percentDamage   | % Daño
+55  | weaponDamage    | Daño Arma
+56  | weaponDamagePercent | % Daño Arma
+57  | backDamage      | Daño por detrás
+58  | meleeDamage     | Daño cuerpo a cuerpo
+59  | distanceDamage  | Daño a distancia
+60  | criticalDamage   | Daño Crítico
+61  | criticalPercent | % Crítico
+62  | blockPercent    | % Bloqueo
+63  | dodgePercent    | % Esquiva
+64  | trapPercent     | % Trampa
+65  | glyphPercent    | % Glifo
+66  | summonPercent   | % Invocación
+67  | pushbackDamagePercent | % Daño de rechazo
+68  | healPercent     | % Cura
+69  | stealLifePercent | % Robo de vida
+70  | stealAPPercent  | % Robo de PA
+71  | stealMPPercent  | % Robo de PM
+72  | dodgeAPPercent  | % Esquiva PA
+73  | dodgeMPPercent  | % Esquiva PM
+
+Formato de nombre de archivo: {id}_{keyword}.png
+Ejemplo: 0_hitPoints.png, 10_strength.png

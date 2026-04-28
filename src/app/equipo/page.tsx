@@ -5,6 +5,7 @@ import { fetchItemTypes, fetchAllItemsByType, fetchAllCharacteristics } from "@/
 import { setEquipmentItem, getEquipmentItems, removeEquipmentItem, getCachedItems, setCachedItems, getCachedCharacteristics, setCachedCharacteristics, getCachedItemImages, setCachedItemImages, getFavorites, toggleFavorite } from "@/lib/storage-sql";
 import Link from "next/link";
 import { ArrowLeft, Star, ChevronUp, ChevronDown, RefreshCw, X } from "lucide-react";
+import CHARACTERISTIC_ICONS from "@/lib/mapeo_caracteristicas";
 
 // Mapeo de superTypeId a typeId
 const CATEGORY_SUPER_TYPES: Record<string, number> = {
@@ -186,16 +187,15 @@ export default function EquipoPage() {
     return (
       <div className="mt-3 space-y-1">
         {effects.map((effect, index) => {
-          const characteristic = characteristics.find(c => c.id === effect.characteristic);
-          const icon = characteristic?.asset || "📊";
-          const iconUrl = characteristic?.asset ? `https://static.ankama.com/dofus-www/game/icons/56/${characteristic.asset}.png` : null;
+          const iconFile = CHARACTERISTIC_ICONS[effect.characteristic];
+          const iconUrl = iconFile ? `/assets/caracteristicas/${iconFile}` : null;
           
           return (
             <div key={index} className="text-xs text-gray-600 flex items-center gap-1">
               {iconUrl ? (
                 <img src={iconUrl} alt="" className="w-4 h-4" />
               ) : (
-                <span>{icon}</span>
+                <span>📊</span>
               )}
               <span>{effect.from} a {effect.to}</span>
             </div>
@@ -326,7 +326,8 @@ export default function EquipoPage() {
                 {selectedCharacteristics.map(charId => {
                   const char = characteristics.find(c => c.id === charId);
                   if (!char) return null;
-                  const iconUrl = char.asset ? `https://static.ankama.com/dofus-www/game/icons/56/${char.asset}.png` : null;
+                  const iconFile = CHARACTERISTIC_ICONS[charId];
+                  const iconUrl = iconFile ? `/assets/caracteristicas/${iconFile}` : null;
                   
                   return (
                     <button
