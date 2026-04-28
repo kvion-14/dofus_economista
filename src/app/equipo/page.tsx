@@ -272,7 +272,7 @@ export default function EquipoPage() {
               />
               
               <div className="flex items-center gap-2">
-                <label className="text-sm text-[#65856d]">Nivel:</label>
+                <label className="text-sm text-[#adca9a]">Nivel:</label>
                 <input
                   type="number"
                   value={levelFrom}
@@ -315,6 +315,7 @@ export default function EquipoPage() {
                 }}
                 className="w-full p-2 border border-gray-300 rounded bg-white text-[#100b2a]"
               >
+                <option value="" className="text-[#100b2a]">Añadir característica</option>
                 {characteristics.filter(c => c.visible).map((char) => (
                   <option key={char.id} value={char.id} className="text-[#100b2a]">
                     {char.name.es}
@@ -333,7 +334,7 @@ export default function EquipoPage() {
                     <button
                       key={charId}
                       onClick={() => handleToggleCharacteristic(charId)}
-                      className="flex items-center gap-1 px-3 py-2 bg-[#974133] text-white rounded-lg hover:bg-red-500 transition-colors group"
+                      className="flex items-center gap-1 px-3 py-2 bg-[#974133] text-white rounded-lg hover:bg-[#974133]/80 transition-colors group"
                       title="Click para quitar"
                     >
                       {iconUrl ? (
