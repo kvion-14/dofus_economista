@@ -123,7 +123,9 @@ export default function PreciosPage() {
   };
 
   const filteredRunes = runes.filter(rune =>
-    rune.name.es.toLowerCase().includes(searchTerm.toLowerCase())
+    searchTerm.split(',').map(s => s.trim().toLowerCase()).some(term =>
+      rune.name.es.toLowerCase().includes(term)
+    )
   );
 
   return (

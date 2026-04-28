@@ -106,6 +106,20 @@ def initialize_database():
         )
     ''')
     
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS broken_items_history (
+            id TEXT PRIMARY KEY,
+            itemId INTEGER,
+            itemIcon TEXT,
+            itemName TEXT NOT NULL,
+            breakCoefficient REAL NOT NULL,
+            runesObtained TEXT NOT NULL,
+            itemPrice REAL,
+            craftPrice REAL,
+            createdAt TEXT NOT NULL
+        )
+    ''')
+    
     conn.commit()
     conn.close()
 
@@ -195,17 +209,28 @@ def get_broken_items():
     conn.close()
     return jsonify([dict(row) for row in items])
 
+@app.route('/api/broken-items-history', methods=['GET'])
+def get_broken_items_history():
+    conn = get_db_connection()
+    items = conn.execute('SELECT * FROM broken_items_history ORDER BY createdAt DESC').fetchall()
+    conn.close()
+    return jsonify([dict(row) for row in items])
+
 @app.route('/api/broken-items', methods=['POST'])
 def add_broken_item():
     data = request.json
     conn = get_db_connection()
     cursor = conn.cursor()
     
+    now = data.get('createdAt', datetime.now().isoformat())
+    
+    # Solo insertar en historial (no en tabla principal para evitar duplicación)
     cursor.execute('''
-        INSERT INTO broken_items (id, itemName, breakPercentage, itemPrice, craftPrice, runesObtained, createdAt)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-    ''', (data['id'], data['itemName'], data['breakPercentage'], data['itemPrice'], 
-          data['craftPrice'], json.dumps(data['runesObtained']), data.get('createdAt', datetime.now().isoformat())))
+        INSERT INTO broken_items_history (id, itemId, itemIcon, itemName, breakCoefficient, runesObtained, itemPrice, craftPrice, createdAt)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ''', (data['id'], data.get('itemId'), data.get('itemIcon'), data['itemName'], 
+          data['breakCoefficient'], json.dumps(data['runesObtained']), data['itemPrice'], 
+          data['craftPrice'], now))
     
     conn.commit()
     conn.close()
@@ -214,7 +239,10 @@ def add_broken_item():
 @app.route('/api/broken-items/<item_id>', methods=['DELETE'])
 def delete_broken_item(item_id):
     conn = get_db_connection()
+    # Borrar de tabla principal
     conn.execute('DELETE FROM broken_items WHERE id = ?', (item_id,))
+    # Borrar de historial
+    conn.execute('DELETE FROM broken_items_history WHERE id = ?', (item_id,))
     conn.commit()
     conn.close()
     return jsonify({'success': True})

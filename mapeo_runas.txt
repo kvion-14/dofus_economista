@@ -1,0 +1,51 @@
+Mapeo de Runas a Elementos (sin Su/Vi, solo básicas)
+========================================================
+
+Runa Básica    | Elemento/Característica        | ID Característica
+---------------|--------------------------------|------------------
+Runa Fu        | Fuerza/Tierra                  | 10
+Runa Vi        | Vida                           | 11
+Runa In        | Inteligencia/Fuego             | 15
+Runa Agi       | Agilidad/Aire                  | 14
+Runa Sue       | Suerte/Agua                    | 13
+Re Fuego       | Resistencia Fuego (fijo)        | 55
+Re Agua        | Resistencia Agua (fijo)        | 56
+Re Aire        | Resistencia Aire (fijo)        | 57
+Re Tierra      | Resistencia Tierra (fijo)      | 54
+Re Neutral     | Resistencia Neutral (fijo)     | 58
+Re Cri         | Crítico                        | 18
+Re Pod         | Pods                           | 40
+Re Ini         | Iniciativa                     | 44
+Runa Ga PA     | PA                             | 1
+Runa Ga PM     | PM                             | 23
+Runa Sa        | Sabiduría                      | 12
+Runa Prospe    | Prospección                    | 48
+Runa Cu        | Curas                          | 49
+Runa Da Reen   | Reenvío                        | 50
+Runa Da Emp    | Empuje                         | 84
+Runa Pla       | Placaje                        | 79
+Runa Hui       | Huida                          | 78
+Runa Re PA     | Esquiva PA                     | 27
+Runa Re PM     | Esquiva PM                     | 28
+Runa Ret PA    | Retirada PA                    | 82
+Runa Ret PM    | Retirada PM                    | 83
+Runa Pot       | Potencia                       | 25
+Runa Da        | Daños                          | 16
+Runa Al        | Alcance                        | 19
+Runa Invo      | Invocación                     | 26
+Runa Da Tierra | Daño Tierra                    | 88
+Runa Da Fuego  | Daño Fuego                     | 89
+Runa Da Agua   | Daño Agua                      | 90
+Runa Da Aire   | Daño Aire                      | 91
+Runa Da Neutral| Daño Neutral                   | 92
+Runa Da Cri    | Daño Crítico                   | 86
+Runa Re Cri    | Resistencia Crítico (fijo)     | 87
+Runa Re Emp    | Resistencia Empuje (fijo)       | 85
+Runa Da Por CC | Daño Cuerpo a Cuerpo (%)        | 125
+Runa Da Por Di | Daño Distancia (%)             | 120
+Runa Da Por Ar | Daño Armas (%)                 | 122
+Runa Da Por He | Daño Hechizos (%)               | 123
+Runa Re Por CC | Resistencia CC (%)              | 124
+Runa Re Por Di | Resistencia Distancia (%)       | 121
+Runa Da Tram   | Daño Trampa                    | 70
+Runa Por Tram  | Potencia Trampa                | 69

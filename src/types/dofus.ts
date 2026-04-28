@@ -54,8 +54,10 @@ export interface PriceChange {
 
 export interface BrokenItem {
   id: string;
+  itemId?: number;
+  itemIcon?: string;
   itemName: string;
-  breakPercentage: number;
+  breakCoefficient: number;
   runesObtained: RuneObtained[];
   itemPrice?: number;
   craftPrice?: number;

@@ -200,6 +200,12 @@ export async function getCharacteristicIcons(): Promise<Record<number, string>> 
   return await response.json();
 }
 
+// Funciones para historial de items rotos
+export async function getBrokenItemsHistory(): Promise<any[]> {
+  const response = await fetch(`${API_BASE}/broken-items-history`);
+  return await response.json();
+}
+
 // Exportar funciones dummy para compatibilidad
 export const saveDatabase = () => {};
 export const initializeDatabase = () => Promise.resolve({});
