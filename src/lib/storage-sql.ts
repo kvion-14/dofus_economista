@@ -194,6 +194,12 @@ export async function toggleFavorite(itemId: number): Promise<void> {
   await fetch(`${API_BASE}/favorites/${itemId}`, { method: 'POST' });
 }
 
+// Funciones para mapeo de iconos de características
+export async function getCharacteristicIcons(): Promise<Record<number, string>> {
+  const response = await fetch(`${API_BASE}/characteristic-icons`);
+  return await response.json();
+}
+
 // Exportar funciones dummy para compatibilidad
 export const saveDatabase = () => {};
 export const initializeDatabase = () => Promise.resolve({});

@@ -2,10 +2,9 @@
 
 import React, { useState, useEffect } from "react";
 import { fetchItemTypes, fetchAllItemsByType, fetchAllCharacteristics } from "@/lib/dofus-api";
-import { setEquipmentItem, getEquipmentItems, removeEquipmentItem, getCachedItems, setCachedItems, getCachedCharacteristics, setCachedCharacteristics, getCachedItemImages, setCachedItemImages, getFavorites, toggleFavorite } from "@/lib/storage-sql";
+import { setEquipmentItem, getEquipmentItems, removeEquipmentItem, getCachedItems, setCachedItems, getCachedCharacteristics, setCachedCharacteristics, getCachedItemImages, setCachedItemImages, getFavorites, toggleFavorite, getCharacteristicIcons } from "@/lib/storage-sql";
 import Link from "next/link";
 import { ArrowLeft, Star, ChevronUp, ChevronDown, RefreshCw, X } from "lucide-react";
-import CHARACTERISTIC_ICONS from "@/lib/mapeo_caracteristicas";
 
 // Mapeo de superTypeId a typeId
 const CATEGORY_SUPER_TYPES: Record<string, number> = {
@@ -34,12 +33,14 @@ export default function EquipoPage() {
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [selectedCharacteristics, setSelectedCharacteristics] = useState<number[]>([]);
   const [characteristics, setCharacteristics] = useState<any[]>([]);
+  const [characteristicIcons, setCharacteristicIcons] = useState<Record<number, string>>({});
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     loadEquipment();
     loadFavorites();
     loadCharacteristics();
+    loadCharacteristicIcons();
     // Cargar Sombrero por defecto
     loadCategoryItems("Sombrero");
   }, []);
@@ -63,6 +64,11 @@ export default function EquipoPage() {
       await setCachedCharacteristics(allCharacteristics);
       setCharacteristics(allCharacteristics);
     }
+  };
+
+  const loadCharacteristicIcons = async () => {
+    const icons = await getCharacteristicIcons();
+    setCharacteristicIcons(icons);
   };
 
   const handleRefresh = async () => {
@@ -187,7 +193,7 @@ export default function EquipoPage() {
     return (
       <div className="mt-3 space-y-1">
         {effects.map((effect, index) => {
-          const iconFile = CHARACTERISTIC_ICONS[effect.characteristic];
+          const iconFile = characteristicIcons[effect.characteristic];
           const iconUrl = iconFile ? `/assets/caracteristicas/${iconFile}` : null;
           const characteristic = characteristics.find(c => c.id === effect.characteristic);
           const charName = characteristic?.name?.es || `Característica ${effect.characteristic}`;
@@ -197,7 +203,7 @@ export default function EquipoPage() {
               {iconUrl ? (
                 <img src={iconUrl} alt={charName} title={charName} className="w-4 h-4" />
               ) : (
-                <span title={charName}>📊</span>
+                <span title={charName}>❓</span>
               )}
               <span>{effect.from} a {effect.to}</span>
             </div>
@@ -327,7 +333,7 @@ export default function EquipoPage() {
                 {selectedCharacteristics.map(charId => {
                   const char = characteristics.find(c => c.id === charId);
                   if (!char) return null;
-                  const iconFile = CHARACTERISTIC_ICONS[charId];
+                  const iconFile = characteristicIcons[charId];
                   const iconUrl = iconFile ? `/assets/caracteristicas/${iconFile}` : null;
                   
                   return (
@@ -340,7 +346,7 @@ export default function EquipoPage() {
                       {iconUrl ? (
                         <img src={iconUrl} alt="" className="w-4 h-4" />
                       ) : (
-                        <span>📊</span>
+                        <span>❓</span>
                       )}
                       <span className="group-hover:line-through">{char.name.es}</span>
                       <X size={14} />

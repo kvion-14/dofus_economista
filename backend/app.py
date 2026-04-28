@@ -99,6 +99,13 @@ def initialize_database():
         )
     ''')
     
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS characteristic_icons (
+            characteristicId INTEGER PRIMARY KEY,
+            iconFile TEXT NOT NULL
+        )
+    ''')
+    
     conn.commit()
     conn.close()
 
@@ -428,6 +435,91 @@ def set_item_images_cache():
     conn.commit()
     conn.close()
     return jsonify({'success': True})
+
+# API para mapeo de iconos de características
+@app.route('/api/characteristic-icons', methods=['GET'])
+def get_characteristic_icons():
+    conn = get_db_connection()
+    icons = conn.execute('SELECT * FROM characteristic_icons').fetchall()
+    conn.close()
+    result = {}
+    for row in icons:
+        result[row['characteristicId']] = row['iconFile']
+    return jsonify(result)
+
+@app.route('/api/characteristic-icons', methods=['POST'])
+def set_characteristic_icons():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # Limpiar tabla existente
+    cursor.execute('DELETE FROM characteristic_icons')
+    
+    # Mapeo de características a iconos (basado en datos reales de la API de DofusDB)
+    icon_mappings = {
+        0: 'pv.png',                    # Puntos de vida (hitPoints)
+        1: 'pa.png',                    # PA (actionPoints)
+        3: 'pp.png',                    # Puntos de característica (statsPoints)
+        4: 'soin.png',                  # Puntos de hechizo (spellsPoints)
+        5: 'puissance.png',             # Nivel (level)
+        10: 'terre.png',                # Fuerza (strength)
+        11: 'pv.png',                   # Vitalidad (vitality)
+        12: 'sagesse.png',              # Sabiduría (wisdom)
+        13: 'eau.png',                  # Suerte (chance)
+        14: 'air.png',                  # Agilidad (agility)
+        15: 'feu.png',                  # Inteligencia (intelligence)
+        16: 'dommages.png',             # Daños (allDamageBonus)
+        18: 'critique.png',             # Crítico (criticalHit)
+        19: 'po.png',                   # Alcance (range)
+        23: 'pm.png',                   # PM (movementPoints)
+        25: 'dommages.png',             # Potencia (daños generales) (damagePercent)
+        26: 'invocation.png',           # Invocación (maxSummonedCreaturesBoost)
+        27: 'esquive-pa.png',           # Esquiva PA (DodgeApLostProbability)
+        28: 'esquive-pm.png',           # Esquiva PM (DodgeMpLostProbability)
+        33: 'res-neutre.png',           # Resistencia (earthElementResistPercent)
+        34: 'res-neutre.png',           # Resistencia (fireElementResistPercent)
+        35: 'res-neutre.png',           # Resistencia (waterElementResistPercent)
+        36: 'res-neutre.png',           # Resistencia (airElementResistPercent)
+        37: 'res-neutre.png',           # Resistencia (neutralElementResistPercent)
+        40: 'pod.png',                  # Pods (weight)
+        44: 'initiative.png',           # Iniciativa (initiative)
+        48: 'pp.png',                   # Prospección (magicFind)
+        49: 'soin.png',                 # Curas (healBonus)
+        50: 'renvoi.png',               # Reenvío (reflectDamage)
+        54: 'res-neutre.png',           # Resistencia (earthElementReduction)
+        55: 'res-neutre.png',           # Resistencia (fireElementReduction)
+        56: 'res-neutre.png',           # Resistencia (waterElementReduction)
+        57: 'res-neutre.png',           # Resistencia (airElementReduction)
+        58: 'res-neutre.png',           # Resistencia (neutralElementReduction)
+        69: 'puissance-piege.png',      # Potencia de trampas (trapDamageBonusPercent)
+        70: 'do-piege.png',             # Daños de trampas (trapDamageBonus)
+        78: 'fuite.png',                # Huida (tackleEvade)
+        79: 'tacle.png',                # Placaje (tackleBlock)
+        82: 'retrait-pa.png',           # Retirada de PA (apReduction)
+        83: 'retrait-pm.png',           # Retirada de PM (mpReduction)
+        84: 'renvoi.png',               # Empuje (pushDamageBonus)
+        85: 'renvoi.png',               # Empuje (fijo) (pushDamageReduction)
+        86: 'do-critique.png',          # Críticos (criticalDamageBonus)
+        87: 'do-critique.png',          # Críticos (fijo) (criticalDamageReduction)
+        88: 'terre.png',                # Tierra (earthDamageBonus)
+        89: 'feu.png',                  # Fuego (fireDamageBonus)
+        90: 'eau.png',                  # Agua (waterDamageBonus)
+        91: 'air.png',                  # Aire (airDamageBonus)
+        92: 'neutre.png',               # Neutral (neutralDamageBonus)
+        121: 'dodi.png',                # Distancia (%) (receivedDamageMultiplierDistance)
+        122: 'doweap.png',              # Armas (%) (dealtDamageMultiplierWeapon)
+        123: 'dome.png',                # Hechizos (%) (dealtDamageMultiplierSpells)
+        124: 'dome.png',                # Cuerpo a cuerpo (%) (receivedDamageMultiplierMelee)
+        125: 'dome.png',                # Cuerpo a cuerpo (%) (dealtDamageMultiplierMelee)
+    }
+    
+    # Insertar mapeos
+    for char_id, icon_file in icon_mappings.items():
+        cursor.execute('INSERT INTO characteristic_icons (characteristicId, iconFile) VALUES (?, ?)', (char_id, icon_file))
+    
+    conn.commit()
+    conn.close()
+    return jsonify({'success': True, 'count': len(icon_mappings)})
 
 # API para favoritos
 @app.route('/api/favorites', methods=['GET'])
