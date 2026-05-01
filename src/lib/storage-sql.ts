@@ -200,6 +200,32 @@ export async function getCharacteristicIcons(): Promise<Record<number, string>> 
   return await response.json();
 }
 
+// API para objetos farmeados
+export async function getFarmedItems(): Promise<any[]> {
+  const response = await fetch(`${API_BASE}/farmed-items`);
+  return await response.json();
+}
+
+export async function addFarmedItem(item: any): Promise<void> {
+  await fetch(`${API_BASE}/farmed-items`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(item)
+  });
+}
+
+export async function deleteFarmedItem(itemId: string): Promise<void> {
+  await fetch(`${API_BASE}/farmed-items/${itemId}`, { method: 'DELETE' });
+}
+
+export async function updateFarmedItem(itemId: string, notes: string): Promise<void> {
+  await fetch(`${API_BASE}/farmed-items/${itemId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ notes })
+  });
+}
+
 // Funciones para historial de items rotos
 export async function getBrokenItemsHistory(): Promise<any[]> {
   const response = await fetch(`${API_BASE}/broken-items-history`);

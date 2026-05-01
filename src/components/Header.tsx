@@ -27,6 +27,12 @@ export default function Header() {
             >
               Equipo
             </Link>
+            <Link
+              href="/farmear"
+              className="text-[#ecfeca] hover:text-[#adca9a] transition-colors font-medium"
+            >
+              Farmear
+            </Link>
           </div>
         </nav>
       </div>

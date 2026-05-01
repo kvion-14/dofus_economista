@@ -120,6 +120,18 @@ def initialize_database():
         )
     ''')
     
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS farmed_items (
+            id TEXT PRIMARY KEY,
+            itemId INTEGER NOT NULL,
+            itemIcon TEXT,
+            itemName TEXT NOT NULL,
+            category TEXT NOT NULL,
+            notes TEXT,
+            createdAt TEXT NOT NULL
+        )
+    ''')
+    
     conn.commit()
     conn.close()
 
@@ -573,6 +585,54 @@ def toggle_favorite(item_id):
         cursor.execute('DELETE FROM favorites WHERE itemId = ?', (item_id,))
     else:
         cursor.execute('INSERT INTO favorites (itemId) VALUES (?)', (item_id,))
+    
+    conn.commit()
+    conn.close()
+    return jsonify({'success': True})
+
+# API para objetos farmeados
+@app.route('/api/farmed-items', methods=['GET'])
+def get_farmed_items():
+    conn = get_db_connection()
+    items = conn.execute('SELECT * FROM farmed_items ORDER BY createdAt DESC').fetchall()
+    conn.close()
+    return jsonify([dict(row) for row in items])
+
+@app.route('/api/farmed-items', methods=['POST'])
+def add_farmed_item():
+    data = request.json
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    now = data.get('createdAt', datetime.now().isoformat())
+    
+    cursor.execute('''
+        INSERT INTO farmed_items (id, itemId, itemIcon, itemName, category, notes, createdAt)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    ''', (data['id'], data['itemId'], data.get('itemIcon'), data['itemName'],
+          data['category'], data.get('notes', ''), now))
+    
+    conn.commit()
+    conn.close()
+    return jsonify({'success': True})
+
+@app.route('/api/farmed-items/<item_id>', methods=['DELETE'])
+def delete_farmed_item(item_id):
+    conn = get_db_connection()
+    conn.execute('DELETE FROM farmed_items WHERE id = ?', (item_id,))
+    conn.commit()
+    conn.close()
+    return jsonify({'success': True})
+
+@app.route('/api/farmed-items/<item_id>', methods=['PUT'])
+def update_farmed_item(item_id):
+    data = request.json
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute('''
+        UPDATE farmed_items SET notes = ? WHERE id = ?
+    ''', (data['notes'], item_id))
     
     conn.commit()
     conn.close()
